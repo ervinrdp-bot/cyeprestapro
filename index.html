@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0F172A" />
+  <meta name="description" content="PrestaPro - Suite Financiera Futurista y Plataforma de Administración de Préstamos" />
+  <title>PrestaPro - Gestión Inteligente de Préstamos</title>
+
+  <!-- PWA Manifest & Favicon -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+
+  <!-- Google Fonts: Inter, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <section class="login-screen" id="login-screen" aria-labelledby="login-title">
+    <div class="magic-rings" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="login-card">
+      <p class="login-eyebrow">Acceso protegido</p>
+      <h1 id="login-title">Iniciar sesión</h1>
+      <p class="login-subtitle">Ingresa a tu centro de control financiero.</p>
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-username">Usuario</label>
+          <input class="form-control" id="login-username" name="username" type="text" autocomplete="username" required autofocus />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Contraseña</label>
+          <input class="form-control" id="login-password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <p class="login-error" id="login-error" role="alert" hidden>Usuario o contraseña incorrectos.</p>
+        <button class="btn btn-primary login-submit" type="submit">Ingresar</button>
+      </form>
+      <p class="login-note">Administrador de la empresa</p>
+    </div>
+  </section>
+
+  <div id="app" hidden>
+    <!-- Sidebar de Navegación Lateral (Desktop / Tablet) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/logo.svg" alt="PrestaPro Logo" class="sidebar-logo" />
+        <span class="sidebar-brand">Presta<span>Pro</span></span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <span class="nav-section-title">Principal</span>
+        <a class="nav-item active" data-route="dashboard" onclick="window.appRouter.navigate('dashboard')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V18a2 2 0 0 1-2 2h-3v-7H9v7H6a2 2 0 0 1-2-2z"/></svg></i> <span>Inicio / Dashboard</span>
+        </a>
+        <a class="nav-item" data-route="clients" onclick="window.appRouter.navigate('clients')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v1"/><circle cx="10" cy="7" r="3.5"/><path d="M20 19v-1a4 4 0 0 0-2.7-3.7"/><path d="M16 5.5A3.5 3.5 0 0 1 18.5 9"/></svg></i> <span>Clientes</span>
+        </a>
+        <a class="nav-item" data-route="loans" onclick="window.appRouter.navigate('loans')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l5 5V18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z"/><path d="M14 3.5V9h5"/><path d="M8 12h8M8 15h8"/></svg></i> <span>Préstamos</span>
+          <span class="nav-badge" id="badge-overdue" style="display: none;">0</span>
+        </a>
+
+        <span class="nav-section-title">Operaciones de Caja</span>
+        <a class="nav-item" data-route="payments" onclick="window.appRouter.navigate('payments')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5v9A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><path d="M3 9.5h18M8 14h4"/><path d="M15 13.5c0 1.1-.9 2-2 2h-1.5A2.5 2.5 0 0 1 9 13c0-1.1.9-2 2-2h1.5A2.5 2.5 0 0 1 15 13.5z"/></svg></i> <span>Pagos</span>
+        </a>
+        <a class="nav-item" data-route="amortizations" onclick="window.appRouter.navigate('amortizations')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3.5v3M16 3.5v3M3.5 9.5h17"/><path d="M8 13h3v4H8z"/></svg></i> <span>Amortizaciones</span>
+          <span class="nav-badge" id="badge-today" style="display: none; background: var(--accent-cyan);">0</span>
+        </a>
+        <a class="nav-item" data-route="receipts" onclick="window.appRouter.navigate('receipts')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h8l4 4V18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z"/><path d="M15 3.5V8h4"/><path d="M8 11h8M8 14h8"/></svg></i> <span>Recibos</span>
+        </a>
+
+        <span class="nav-section-title">Inteligencia & Control</span>
+        <a class="nav-item" data-route="automations" onclick="window.appRouter.navigate('automations')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18.5 15.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z"/></svg></i> <span>WhatsApp y Avisos</span>
+        </a>
+        <a class="nav-item" data-route="reports" onclick="window.appRouter.navigate('reports')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.5V9.5M12 18.5V5.5M19 18.5v-8"/><path d="M3.5 18.5h17"/></svg></i> <span>Reportes</span>
+        </a>
+        <a class="nav-item" data-route="exports" onclick="window.appRouter.navigate('exports')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v10"/><path d="m8 18 4 4 4-4"/><path d="M5 8.5A2.5 2.5 0 0 1 7.5 6h9A2.5 2.5 0 0 1 19 8.5v7A2.5 2.5 0 0 1 16.5 18h-9A2.5 2.5 0 0 1 5 15.5z"/></svg></i> <span>Exportaciones</span>
+        </a>
+        <a class="nav-item" data-route="settings" onclick="window.appRouter.navigate('settings')">
+          <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.4 2.8a1 1 0 0 1 1.2 0l1.1 1a1 1 0 0 0 1.3.2l1.1-.6a1 1 0 0 1 1.4.6l.3 1.2a1 1 0 0 0 .8.7l1.2.2a1 1 0 0 1 .8 1.1l-.2 1.2a1 1 0 0 0 .5 1.1l1 .6a1 1 0 0 1 .2 1.4l-.7 1.1a1 1 0 0 0-.1 1.3l.7 1a1 1 0 0 1-.1 1.4l-1 .7a1 1 0 0 0-.3 1.2l.4 1.1a1 1 0 0 1-.6 1.3l-1.1.4a1 1 0 0 0-.7.8l-.2 1.2a1 1 0 0 1-1.1.8h-1.2a1 1 0 0 0-1 .7l-.3 1.1a1 1 0 0 1-1.4.6l-1-.7a1 1 0 0 0-1.2.1l-1 .8a1 1 0 0 1-1.4-.2l-.7-1a1 1 0 0 0-1.2-.2l-1.1.6a1 1 0 0 1-1.3-.6l-.3-1.2a1 1 0 0 0-.8-.7l-1.2-.2a1 1 0 0 1-.9-1.1l.2-1.2a1 1 0 0 0-.5-1.1l-1-.6a1 1 0 0 1-.2-1.4l.7-1.1a1 1 0 0 0 .1-1.3l-.7-1a1 1 0 0 1 .1-1.4l1-.7a1 1 0 0 0 .3-1.2L3.6 9a1 1 0 0 1 .6-1.3l1.1-.4a1 1 0 0 0 .7-.8l.2-1.2a1 1 0 0 1 1.1-.8h1.2a1 1 0 0 0 1-.7l.3-1.1a1 1 0 0 1 1.4-.6l1 .7a1 1 0 0 0 1.2-.1l1-.8a1 1 0 0 1 1.4.2l.7 1a1 1 0 0 0 1.2.2l1.1-.6a1 1 0 0 1 1.3.6l.3 1.2a1 1 0 0 0 .8.7l1.2.2a1 1 0 0 1 .9 1.1l-.2 1.2a1 1 0 0 0 .5 1.1l1 .6a1 1 0 0 1 .2 1.4l-.7 1.1a1 1 0 0 0-.1 1.3l.7 1z"/><circle cx="12" cy="12" r="3.5"/></svg></i> <span>Configuración</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar">P</div>
+        <div class="user-info">
+          <div class="user-name">Administrador</div>
+          <div class="user-role">👑 Propietario</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="main-wrapper">
+      <!-- Barra Superior -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" onclick="window.appRouter.toggleSidebar()" title="Alternar menú">
+            ☰
+          </button>
+          <h1 class="page-title" id="page-title">Centro de Control Financiero</h1>
+        </div>
+
+        <div class="header-right">
+          <button class="btn btn-emerald btn-sm" onclick="window.appRouter.openPaymentModal()" title="Cobro rápido">
+            <span>💵</span> <span class="hide-on-mobile">Registrar Pago</span>
+          </button>
+          <button class="btn-icon" onclick="window.appRouter.toggleTheme()" title="Cambiar tema">
+            ☀️
+          </button>
+        </div>
+      </header>
+
+      <!-- Área de Vistas Dinámicas -->
+      <div class="content-body" id="content-area">
+        <!-- Contenido renderizado por JS -->
+      </div>
+    </main>
+
+    <!-- Barra de Navegación Inferior (Móvil) -->
+    <nav class="bottom-nav">
+      <a class="bottom-nav-item active" data-route="dashboard" onclick="window.appRouter.navigate('dashboard')">
+        <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V18a2 2 0 0 1-2 2h-3v-7H9v7H6a2 2 0 0 1-2-2z"/></svg></i> <span>Inicio</span>
+      </a>
+      <a class="bottom-nav-item" data-route="clients" onclick="window.appRouter.navigate('clients')">
+        <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v1"/><circle cx="10" cy="7" r="3.5"/><path d="M20 19v-1a4 4 0 0 0-2.7-3.7"/><path d="M16 5.5A3.5 3.5 0 0 1 18.5 9"/></svg></i> <span>Clientes</span>
+      </a>
+      <a class="bottom-nav-item" data-route="loans" onclick="window.appRouter.navigate('loans')">
+        <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l5 5V18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z"/><path d="M14 3.5V9h5"/><path d="M8 12h8M8 15h8"/></svg></i> <span>Préstamos</span>
+      </a>
+      <a class="bottom-nav-item" data-route="payments" onclick="window.appRouter.navigate('payments')">
+        <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h13A2.5 2.5 0 0 1 21 7.5v9A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><path d="M3 9.5h18M8 14h4"/><path d="M15 13.5c0 1.1-.9 2-2 2h-1.5A2.5 2.5 0 0 1 9 13c0-1.1.9-2 2-2h1.5A2.5 2.5 0 0 1 15 13.5z"/></svg></i> <span>Pagos</span>
+      </a>
+      <a class="bottom-nav-item" data-route="reports" onclick="window.appRouter.navigate('reports')">
+        <i class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.5V9.5M12 18.5V5.5M19 18.5v-8"/><path d="M3.5 18.5h17"/></svg></i> <span>Reportes</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Modal Global Reutilizable -->
+  <div class="modal-backdrop" id="global-modal" onclick="if(event.target === this) window.appRouter.closeModal()">
+    <div id="global-modal-content"></div>
+  </div>
+
+  <!-- Orquestador Principal -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente Teal #23c8af -->
+    <linearGradient id="tealGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#23c8af" stop-opacity="1" />
+      <stop offset="100%" stop-color="#11675a" stop-opacity="0.8" />
+    </linearGradient>
+
+    <linearGradient id="tealGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#23c8af" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0.1" />
+    </linearGradient>
+
+    <!-- Filtro de Resplandor Neón Teal -->
+    <filter id="tealGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Fondo Oscuro Matte -->
+  <rect width="500" height="500" fill="#09090b" />
+
+  <g transform="translate(250, 250)">
+    <!-- Magic Ring 3 (Anillo Exterior Estático) -->
+    <circle r="160" fill="none" stroke="url(#tealGradient2)" stroke-width="2" stroke-dasharray="16 10" opacity="0.4" />
+
+    <!-- Magic Ring 2 (Anillo Medio Estático) -->
+    <circle r="130" fill="none" stroke="url(#tealGradient1)" stroke-width="3.5" stroke-dasharray="90 35 25 45" opacity="0.85" filter="url(#tealGlow)" />
+
+    <!-- Magic Ring 1 (Anillo Interno Estático) -->
+    <circle r="102" fill="none" stroke="#23c8af" stroke-width="2" stroke-dasharray="150 45" opacity="0.95" filter="url(#tealGlow)" />
+
+    <!-- Escudo Central CYE (Blanco Puro) -->
+    <g transform="translate(-100, -100)">
+      <!-- Hexágono Base -->
+      <path d="M 100 15 L 180 55 L 180 145 L 100 185 L 20 145 L 20 55 Z" 
+            fill="#09090b" stroke="#ffffff" stroke-width="11" stroke-linejoin="round" stroke-linecap="round" />
+      
+      <!-- Letra C -->
+      <path d="M 65 75 C 45 75, 45 125, 65 125" fill="none" stroke="#ffffff" stroke-width="9.5" stroke-linecap="round"/>
+      
+      <!-- Letra Y -->
+      <path d="M 82 80 L 100 100 L 118 80 M 100 100 L 100 130" fill="none" stroke="#ffffff" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+      
+      <!-- Letra E -->
+      <path d="M 150 75 L 132 75 L 132 125 L 150 125 M 132 100 L 146 100" fill="none" stroke="#ffffff" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

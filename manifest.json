@@ -1,0 +1,17 @@
+{
+  "name": "PrestaPro - Plataforma de Préstamos",
+  "short_name": "PrestaPro",
+  "description": "Suite de administración financiera para prestamistas y microcréditos",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090D16",
+  "theme_color": "#0F172A",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
