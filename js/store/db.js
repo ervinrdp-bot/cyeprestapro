@@ -505,13 +505,16 @@ export class DB {
     return this.data.loans[idx];
   }
 
-  deleteLoan(id) {
+  deleteLoan(id, force = false) {
     const loan = this.getLoanById(id);
     if (!loan) return;
-    if (loan.totalPaid > 0) {
-      throw new Error('Por seguridad e integridad contable no se puede eliminar un préstamo con pagos registrados.');
+    if (loan.totalPaid > 0 && !force) {
+      throw new Error('Por seguridad e integridad contable no se puede eliminar un préstamo con pagos registrados sin confirmación.');
     }
     this.data.loans = this.data.loans.filter(l => l.id !== id);
+    if (force && this.data.receipts) {
+      this.data.receipts = this.data.receipts.filter(r => r.loanId !== id);
+    }
     this.logActivity('LOAN_DELETED', `Préstamo eliminado: ${id}`);
     this.save();
   }

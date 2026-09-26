@@ -93,6 +93,7 @@ export class PaymentsView {
    * Modal Interactivo de Cobro / Registro de Pago
    */
   static openRegisterPaymentModal(targetLoanId = null, targetQuotaNumber = null) {
+    window.paymentsView = this;
     const loans = db.getLoans().filter(l => l.remainingBalance > 0.01);
     const business = db.getBusinessSettings();
     const symbol = business.currencySymbol || '$';
@@ -146,8 +147,11 @@ export class PaymentsView {
               </div>
 
               <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button type="button" class="btn btn-secondary btn-sm" id="btn-pay-quota" onclick="window.paymentsView.setQuotaAmount()">
-                  Pagar Cuota Completa
+                <button type="button" class="btn btn-primary btn-sm" id="btn-pay-quota" onclick="window.paymentsView.setQuotaAmount()">
+                  ✓ Pagar Cuota Completa
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-pay-interest" onclick="window.paymentsView.setInterestOnlyAmount()">
+                  🪙 Solo Interés
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-liquidate" onclick="window.paymentsView.setLiquidateAmount()">
                   ✨ Liquidar Préstamo Completo
@@ -211,10 +215,6 @@ export class PaymentsView {
     const balanceIndicator = document.getElementById('loan-balance-indicator');
     const symbol = db.getBusinessSettings().currencySymbol || '$';
 
-    if (balanceIndicator) {
-      balanceIndicator.innerHTML = `Saldo pendiente del préstamo: <strong>${Formatters.currency(loan.remainingBalance, symbol)}</strong>`;
-    }
-
     if (!quotaSelect) return;
     quotaSelect.innerHTML = '';
 
@@ -230,7 +230,7 @@ export class PaymentsView {
       if (inst.status !== 'PAGADA') {
         const opt = document.createElement('option');
         opt.value = inst.number;
-        opt.textContent = `Cuota ${inst.number} (${Formatters.date(inst.date)}) - Pendiente: ${Formatters.currency(inst.pendingAmount, symbol)}`;
+        opt.textContent = `Cuota ${inst.number} (${Formatters.date(inst.date)}) - Pendiente: ${Formatters.currency(inst.pendingAmount, symbol)} (Int: ${Formatters.currency(inst.interest, symbol)})`;
         if (preferredQuota && inst.number === preferredQuota) {
           opt.selected = true;
           defaultSelectInst = inst;
@@ -254,41 +254,128 @@ export class PaymentsView {
     if (!loan) return;
 
     const amountInput = document.getElementById('pay-amount');
-    if (!amountInput) return;
+    const balanceIndicator = document.getElementById('loan-balance-indicator');
+    const symbol = db.getBusinessSettings().currencySymbol || '$';
 
+    let currentInterest = loan.interestPerQuota;
     if (quotaNumber) {
       const inst = loan.schedule.find(s => s.number === parseInt(quotaNumber, 10));
       if (inst) {
-        amountInput.value = inst.pendingAmount;
-        return;
+        currentInterest = inst.interest;
+        if (amountInput) amountInput.value = inst.pendingAmount;
+      }
+    } else {
+      if (amountInput) amountInput.value = loan.quotaAmount;
+    }
+
+    if (balanceIndicator) {
+      balanceIndicator.innerHTML = `Saldo: <strong>${Formatters.currency(loan.remainingBalance, symbol)}</strong> • Interés período: <strong style="color: #FBBF24;">${Formatters.currency(currentInterest, symbol)}</strong>`;
+    }
+  }
+
+  static setActiveQuickButton(activeId) {
+    const btnQuota = document.getElementById('btn-pay-quota');
+    const btnInterest = document.getElementById('btn-pay-interest');
+    const btnLiquidate = document.getElementById('btn-liquidate');
+
+    [btnQuota, btnInterest, btnLiquidate].forEach(btn => {
+      if (!btn) return;
+      btn.className = 'btn btn-secondary btn-sm';
+      btn.style.boxShadow = '';
+    });
+
+    const activeBtn = document.getElementById(activeId);
+    if (activeBtn) {
+      if (activeId === 'btn-pay-quota') {
+        activeBtn.className = 'btn btn-primary btn-sm';
+      } else if (activeId === 'btn-pay-interest') {
+        activeBtn.className = 'btn btn-secondary btn-sm';
+        activeBtn.style.background = 'rgba(245, 158, 11, 0.25)';
+        activeBtn.style.borderColor = '#F59E0B';
+        activeBtn.style.color = '#FBBF24';
+        activeBtn.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.3)';
+      } else if (activeId === 'btn-liquidate') {
+        activeBtn.className = 'btn btn-emerald btn-sm';
       }
     }
-    amountInput.value = loan.quotaAmount;
   }
 
   static setQuotaAmount() {
+    this.setActiveQuickButton('btn-pay-quota');
     const loanId = document.getElementById('pay-loan-select')?.value;
     const loan = db.getLoanById(loanId);
     const quotaNumber = document.getElementById('pay-quota-select')?.value;
     const amountInput = document.getElementById('pay-amount');
+    const notesInput = document.querySelector('#payment-form input[name="notes"]');
+    const symbol = db.getBusinessSettings().currencySymbol || '$';
     if (!loan || !amountInput) return;
 
+    let targetAmount = loan.quotaAmount;
     if (quotaNumber) {
-      const inst = loan.schedule.find(s => s.number === parseInt(quotaNumber, 10));
+      const inst = loan.schedule?.find(s => s.number === parseInt(quotaNumber, 10));
       if (inst) {
-        amountInput.value = inst.pendingAmount;
-        return;
+        targetAmount = inst.pendingAmount;
+        if (notesInput && notesInput.value.includes('solo interés')) {
+          notesInput.value = `Pago de cuota ${inst.number} completa`;
+        }
       }
     }
-    amountInput.value = loan.quotaAmount;
+    targetAmount = Math.round(Number(targetAmount || 0) * 100) / 100;
+    amountInput.value = targetAmount;
+    window.appRouter.showToast(`Monto fijado a cuota completa: ${Formatters.currency(targetAmount, symbol)}`);
+  }
+
+  static setInterestOnlyAmount() {
+    this.setActiveQuickButton('btn-pay-interest');
+    const loanId = document.getElementById('pay-loan-select')?.value;
+    const loan = db.getLoanById(loanId);
+    if (!loan) return;
+
+    const quotaNumber = document.getElementById('pay-quota-select')?.value;
+    const amountInput = document.getElementById('pay-amount');
+    const notesInput = document.querySelector('#payment-form input[name="notes"]');
+    const symbol = db.getBusinessSettings().currencySymbol || '$';
+
+    let interestVal = 0;
+    let quotaDesc = 'período';
+
+    if (quotaNumber) {
+      const inst = loan.schedule?.find(s => s.number === parseInt(quotaNumber, 10));
+      if (inst && typeof inst.interest === 'number') {
+        interestVal = inst.interest;
+        quotaDesc = `cuota ${inst.number}`;
+      }
+    }
+    if (!interestVal) {
+      interestVal = loan.interestPerQuota || (loan.totalInterest ? (loan.totalInterest / (loan.installmentsCount || 1)) : 0);
+    }
+    interestVal = Math.round(Number(interestVal || 0) * 100) / 100;
+
+    if (amountInput) {
+      amountInput.value = interestVal;
+    }
+
+    if (notesInput) {
+      notesInput.value = `Pago exclusivo de solo interés (${quotaDesc})`;
+    }
+
+    window.appRouter.showToast(`Monto fijado a solo interés: ${Formatters.currency(interestVal, symbol)}`);
   }
 
   static setLiquidateAmount() {
+    this.setActiveQuickButton('btn-liquidate');
     const loanId = document.getElementById('pay-loan-select')?.value;
     const loan = db.getLoanById(loanId);
     const amountInput = document.getElementById('pay-amount');
+    const notesInput = document.querySelector('#payment-form input[name="notes"]');
+    const symbol = db.getBusinessSettings().currencySymbol || '$';
     if (loan && amountInput) {
-      amountInput.value = loan.remainingBalance;
+      const bal = Math.round(Number(loan.remainingBalance || 0) * 100) / 100;
+      amountInput.value = bal;
+      if (notesInput) {
+        notesInput.value = 'Liquidación total del préstamo';
+      }
+      window.appRouter.showToast(`Monto fijado a liquidación total: ${Formatters.currency(bal, symbol)}`);
     }
   }
 
@@ -320,3 +407,6 @@ export class PaymentsView {
     }
   }
 }
+
+window.paymentsView = PaymentsView;
+

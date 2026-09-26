@@ -14,6 +14,18 @@ import { ExportsView } from './views/exports.js';
 import { SettingsView } from './views/settings.js';
 import { Notifications } from './utils/notifications.js';
 
+// Asignar vistas al objeto window de forma inmediata para que los modales y botones funcionen desde cualquier pantalla
+window.dashboardView = DashboardView;
+window.clientsView = ClientsView;
+window.loansView = LoansView;
+window.paymentsView = PaymentsView;
+window.amortizationsView = AmortizationsView;
+window.receiptsView = ReceiptsView;
+window.automationsView = AutomationsView;
+window.reportsView = ReportsView;
+window.exportsView = ExportsView;
+window.settingsView = SettingsView;
+
 class AppRouter {
   constructor() {
     this.currentRoute = 'dashboard';

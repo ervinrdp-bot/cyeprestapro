@@ -78,6 +78,8 @@ export class LoansView {
           <table class="data-table">
             <thead>
               <tr>
+                <th class="text-center" style="width: 140px;">Acciones</th>
+                <th class="text-center" style="width: 130px;">Estado</th>
                 <th>Préstamo</th>
                 <th>Cliente</th>
                 <th class="text-right">Monto Original</th>
@@ -85,8 +87,6 @@ export class LoansView {
                 <th class="text-right">Total Pagado</th>
                 <th class="text-right">Saldo Pendiente</th>
                 <th class="text-center">Cuota Actual</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -98,6 +98,21 @@ export class LoansView {
                 </tr>
               ` : filtered.map(l => `
                 <tr style="cursor: pointer;" onclick="window.loansView.openLoanDetail('${l.id}')">
+                  <td class="text-center" onclick="event.stopPropagation()">
+                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                      <button class="btn btn-secondary btn-sm" onclick="window.loansView.openLoanDetail('${l.id}')" title="Ver Detalle y Amortización">
+                        👁️
+                      </button>
+                      ${l.remainingBalance > 0 ? `
+                        <button class="btn btn-emerald btn-sm" onclick="window.appRouter.openPaymentModal('${l.id}')" title="Registrar Pago">
+                          💵 Pagar
+                        </button>
+                      ` : ''}
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    ${Formatters.statusBadge(l.status)}
+                  </td>
                   <td>
                     <strong class="mono" style="color: var(--accent-cyan); font-size: 13px;">${l.id}</strong>
                     <div style="font-size: 11px; color: var(--text-subtle);">${Formatters.date(l.issueDate)}</div>
@@ -114,21 +129,6 @@ export class LoansView {
                   </td>
                   <td class="text-center mono font-bold" style="color: #FFF;">
                     ${l.currentQuotaDisplay}
-                  </td>
-                  <td class="text-center">
-                    ${Formatters.statusBadge(l.status)}
-                  </td>
-                  <td class="text-center" onclick="event.stopPropagation()">
-                    <div style="display: flex; gap: 6px; justify-content: center;">
-                      ${l.remainingBalance > 0 ? `
-                        <button class="btn btn-emerald btn-sm" onclick="window.appRouter.openPaymentModal('${l.id}')" title="Registrar Pago">
-                          💵 Pagar
-                        </button>
-                      ` : ''}
-                      <button class="btn btn-secondary btn-sm" onclick="window.loansView.openLoanDetail('${l.id}')" title="Ver Detalle y Amortización">
-                        👁️
-                      </button>
-                    </div>
                   </td>
                 </tr>
               `).join('')}
@@ -474,21 +474,54 @@ export class LoansView {
 
         </div>
 
-        <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="window.loansView.openEditModal('${loan.id}')">
-            ✏️ Editar Préstamo
-          </button>
-          ${!isFinished ? `
-            <button class="btn btn-emerald" onclick="window.appRouter.closeModal(); window.appRouter.openPaymentModal('${loan.id}')">
-              💵 Registrar Pago
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <button class="btn btn-danger" onclick="window.loansView.handleDeleteLoan('${loan.id}', true)">
+              🗑️ Eliminar Préstamo
             </button>
-          ` : ''}
-          <button class="btn btn-secondary" onclick="window.appRouter.closeModal()">Cerrar</button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" onclick="window.loansView.openEditModal('${loan.id}')">
+              ✏️ Editar Préstamo
+            </button>
+            ${!isFinished ? `
+              <button class="btn btn-emerald" onclick="window.appRouter.closeModal(); window.appRouter.openPaymentModal('${loan.id}')">
+                💵 Registrar Pago
+              </button>
+            ` : ''}
+            <button class="btn btn-secondary" onclick="window.appRouter.closeModal()">Cerrar</button>
+          </div>
         </div>
       </div>
     `;
 
     modal.classList.add('active');
+  }
+
+  static handleDeleteLoan(loanId, closeDetailModal = false) {
+    const loan = db.getLoanById(loanId);
+    if (!loan) return;
+
+    const hasPayments = loan.totalPaid > 0;
+    const symbol = db.getBusinessSettings().currencySymbol || '$';
+    let message = `¿Estás seguro de que deseas eliminar el préstamo ${loan.id} (${loan.clientName})?\n\nEsta acción no se puede deshacer.`;
+
+    if (hasPayments) {
+      message = `⚠️ ATENCIÓN: Este préstamo ya tiene pagos registrados por un total de ${Formatters.currency(loan.totalPaid, symbol)}.\n\n¿Estás completamente seguro de que deseas eliminarlo junto con sus pagos y cuotas históricas?`;
+    }
+
+    if (confirm(message)) {
+      try {
+        db.deleteLoan(loanId, true);
+        if (closeDetailModal) {
+          window.appRouter.closeModal();
+        }
+        window.appRouter.showToast(`Préstamo ${loanId} eliminado exitosamente.`);
+        this.render(document.getElementById('content-area'));
+      } catch (err) {
+        alert('Error al eliminar préstamo: ' + err.message);
+      }
+    }
   }
 
   static handlePrintAmortization(loanId) {
