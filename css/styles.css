@@ -1289,9 +1289,82 @@ body {
   .modal-card,
   .modal-card-lg {
     max-height: 92vh;
+    max-height: 92dvh;
     border-radius: 20px 20px 0 0;
     margin: 0;
     width: 100%;
+    min-width: 0;
+  }
+
+  .loan-create-modal,
+  .loan-detail-modal {
+    max-height: calc(100vh - env(safe-area-inset-top));
+    max-height: calc(100dvh - env(safe-area-inset-top));
+    border-radius: 20px 20px 0 0;
+  }
+
+  .loan-create-modal form {
+    min-height: 0;
+  }
+
+  .loan-create-modal .modal-body,
+  .loan-detail-modal .modal-body {
+    min-height: 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .loan-create-modal .modal-header {
+    gap: 10px;
+  }
+
+  .loan-create-modal .modal-title {
+    font-size: 16px;
+  }
+
+  .loan-detail-modal .modal-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .loan-detail-modal .modal-header > div:first-child {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .loan-detail-modal .modal-header > div:last-child {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .loan-detail-modal .modal-header > div:last-child .btn {
+    flex: 1 1 120px;
+    min-height: 40px;
+  }
+
+  .loan-detail-modal .modal-header .modal-close-btn {
+    flex: 0 0 40px;
+  }
+
+  .loan-detail-modal .modal-body > div:last-child .table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .loan-detail-modal .modal-footer > div {
+    width: 100%;
+  }
+
+  .loan-detail-modal .modal-footer > div:last-child {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .loan-detail-modal .modal-footer .btn {
+    flex: 1 1 130px;
   }
 
   .modal-header,
@@ -1316,11 +1389,29 @@ body {
 
   .calc-preview-card {
     padding: 14px;
-    overflow-x: auto;
+    overflow: hidden;
   }
 
   .calc-preview-card > div:nth-child(2) {
-    min-width: 460px;
+    min-width: 0;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+
+  .calc-preview-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .calc-preview-card > div:last-child {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .calc-preview-card > div:last-child > span:last-child {
+    font-size: 18px !important;
   }
 }
 
@@ -1336,4 +1427,60 @@ body {
     background: #FFF !important;
     color: #000 !important;
   }
+}
+
+/* Loan dialogs: constrain the wrapper before sizing its contents. */
+#global-modal-content {
+  width: 100%;
+  max-width: 900px;
+  min-width: 0;
+}
+#global-modal-content > .modal-card { margin-inline: auto; }
+.loan-create-modal, .loan-detail-modal { min-width: 0; }
+.loan-create-modal .modal-header, .loan-detail-modal .modal-header,
+.loan-create-modal .modal-footer, .loan-detail-modal .modal-footer { flex-shrink: 0; }
+.loan-create-modal .form-group, .loan-detail-modal .modal-body > div { min-width: 0; }
+.loan-create-modal .form-control { min-width: 0; max-width: 100%; }
+#loan-rate { padding-right: 58px; }
+body:has(.modal-backdrop.active) { overflow: hidden; }
+@media (max-width: 900px) {
+  .loan-create-modal .form-control { font-size: 16px; min-height: 48px; }
+  .loan-create-modal .form-label { font-size: 14px; line-height: 1.5; color: #e2e8f0; text-transform: none; letter-spacing: 0; }
+  .loan-create-modal .form-grid-3 { gap: 0; }
+  .loan-create-modal input[type="date"] { display: block; width: 100%; -webkit-appearance: none; appearance: none; }
+  .loan-detail-modal .modal-header { flex-wrap: wrap; gap: 12px; }
+  .loan-detail-modal .modal-header > div { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .loan-detail-modal .modal-header > div:first-child > div:first-child { flex-wrap: wrap; }
+  .loan-detail-modal .modal-body > div:last-child > div:first-child { flex-wrap: wrap; gap: 8px; }
+  .loan-detail-modal .table-responsive { max-width: 100%; overflow-x: auto; }
+}
+@media (max-width: 600px) {
+  .modal-backdrop { padding-top: env(safe-area-inset-top, 0px); }
+  .loan-create-modal, .loan-detail-modal {
+    max-height: calc(100vh - env(safe-area-inset-top, 0px));
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .loan-create-modal form { display: block; overflow: visible; flex: none; }
+  .loan-create-modal .modal-body, .loan-detail-modal .modal-body { overflow: visible; flex: none; padding: 16px; }
+  .loan-create-modal .modal-footer, .loan-detail-modal .modal-footer {
+    position: static;
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  }
+  .loan-create-modal .modal-header, .loan-detail-modal .modal-header { position: relative; padding-right: 60px; }
+  .loan-create-modal .modal-close-btn, .loan-detail-modal .modal-close-btn {
+    position: absolute; top: 12px; right: 10px; width: 44px; height: 44px;
+  }
+  .loan-detail-modal .modal-header > div:last-child { gap: 8px; }
+  .loan-detail-modal .modal-body > div:last-child .table-responsive { max-height: none !important; overflow: visible; border: 0 !important; }
+  .loan-schedule-table, .loan-schedule-table tbody { display: block; width: 100%; min-width: 0; }
+  .loan-schedule-table thead { display: none; }
+  .loan-schedule-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--border-subtle); border-radius: 12px; margin-bottom: 12px; padding: 8px; background: #0f172a; }
+  .loan-schedule-table td { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; padding: 10px 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; border: 0; font-size: 14px; }
+  .loan-schedule-table td::before { content: attr(data-label); font: 600 12px/1.4 Inter, sans-serif; color: #cbd5e1; }
+  .loan-schedule-table td .btn { min-height: 44px; width: 100%; }
+  .loan-detail-modal .modal-footer .btn, .loan-create-modal .modal-footer .btn { min-height: 48px; white-space: normal; }
+  .loan-create-modal .calc-row { flex-wrap: wrap; gap: 6px; }
 }
