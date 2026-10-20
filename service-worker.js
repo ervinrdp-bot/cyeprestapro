@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prestapro-v5';
+const CACHE_NAME = 'prestapro-v6-iphone-loans';
 const ASSETS = [
   './',
   './index.html',
