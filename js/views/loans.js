@@ -164,7 +164,7 @@ export class LoansView {
     const modalContent = document.getElementById('global-modal-content');
 
     modalContent.innerHTML = `
-      <div class="modal-card modal-card-lg">
+      <div class="modal-card modal-card-lg loan-create-modal">
         <div class="modal-header">
           <h3 class="modal-title"><span>➕</span> Crear Nuevo Préstamo</h3>
           <button class="modal-close-btn" onclick="window.appRouter.closeModal()">✕</button>
@@ -172,7 +172,7 @@ export class LoansView {
         <form id="new-loan-form" onsubmit="window.loansView.handleCreateLoan(event)">
           <div class="modal-body">
             <div class="form-group">
-              <label class="form-label">Seleccionar Cliente *</label>
+              <label class="form-label" for="loan-client-select">Seleccionar Cliente *</label>
               <select name="clientId" id="loan-client-select" class="form-control" required>
                 <option value="">-- Seleccione un cliente registrado --</option>
                 ${clients.map(c => `
@@ -185,27 +185,27 @@ export class LoansView {
 
             <div class="form-grid-3">
               <div class="form-group">
-                <label class="form-label">Monto Prestado (${symbol}) *</label>
-                <input type="number" step="0.01" name="principal" id="loan-principal" class="form-control mono" required value="1000" oninput="window.loansView.updatePreview()" />
+                <label class="form-label" for="loan-principal">Monto Prestado (${symbol}) *</label>
+                <input type="number" step="0.01" name="principal" inputmode="decimal" id="loan-principal" class="form-control mono" required value="1000" oninput="window.loansView.updatePreview()" />
               </div>
 
               <div class="form-group">
-                <label class="form-label">Interés Mensual (%) *</label>
+                <label class="form-label" for="loan-rate">Interés Mensual (%) *</label>
                 <div style="position: relative;">
-                  <input type="number" step="0.1" name="interestRate" id="loan-rate" class="form-control mono" required value="${business.defaultInterestRate || 10}" oninput="window.loansView.updatePreview()" />
+                  <input type="number" step="0.1" name="interestRate" inputmode="decimal" id="loan-rate" class="form-control mono" required value="${business.defaultInterestRate || 10}" oninput="window.loansView.updatePreview()" />
                   <span style="position: absolute; right: 12px; top: 11px; font-size: 13px; color: var(--accent-cyan); font-weight: 700;">FIJO</span>
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Número de Cuotas *</label>
-                <input type="number" min="1" max="120" name="installmentsCount" id="loan-installments" class="form-control mono" required value="${business.defaultInstallments || 5}" oninput="window.loansView.updatePreview()" />
+                <label class="form-label" for="loan-installments">Número de Cuotas *</label>
+                <input type="number" min="1" max="120" name="installmentsCount" inputmode="numeric" id="loan-installments" class="form-control mono" required value="${business.defaultInstallments || 5}" oninput="window.loansView.updatePreview()" />
               </div>
             </div>
 
             <div class="form-grid-3">
               <div class="form-group">
-                <label class="form-label">Frecuencia de Pago *</label>
+                <label class="form-label" for="loan-frequency">Frecuencia de Pago *</label>
                 <select name="frequency" id="loan-frequency" class="form-control" onchange="window.loansView.updatePreview()">
                   <option value="semanal" selected>Semanal (cada 7 días)</option>
                   <option value="quincenal">Quincenal (cada 15 días)</option>
@@ -214,12 +214,12 @@ export class LoansView {
               </div>
 
               <div class="form-group">
-                <label class="form-label">Fecha de Entrega *</label>
+                <label class="form-label" for="loan-issue-date">Fecha de Entrega *</label>
                 <input type="date" name="issueDate" id="loan-issue-date" class="form-control" required value="${todayStr}" onchange="window.loansView.updatePreview()" />
               </div>
 
               <div class="form-group">
-                <label class="form-label">Fecha Primer Pago *</label>
+                <label class="form-label" for="loan-first-payment">Fecha Primer Pago *</label>
                 <input type="date" name="firstPaymentDate" id="loan-first-payment" class="form-control" required value="${todayStr}" onchange="window.loansView.updatePreview()" />
               </div>
             </div>
@@ -353,7 +353,7 @@ export class LoansView {
     const modalContent = document.getElementById('global-modal-content');
 
     modalContent.innerHTML = `
-      <div class="modal-card modal-card-lg">
+      <div class="modal-card modal-card-lg loan-detail-modal">
         <div class="modal-header">
           <div>
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -431,7 +431,7 @@ export class LoansView {
             </div>
 
             <div class="table-responsive" style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-subtle);">
-              <table class="data-table">
+              <table class="data-table loan-schedule-table">
                 <thead>
                   <tr>
                     <th class="text-center"># Cuota</th>
@@ -449,16 +449,16 @@ export class LoansView {
                 <tbody>
                   ${loan.schedule.map(inst => `
                     <tr>
-                      <td class="text-center mono font-bold">${inst.number} / ${loan.installmentsCount}</td>
-                      <td>${Formatters.date(inst.date)}</td>
-                      <td class="text-right mono font-bold">${Formatters.currency(inst.amount, symbol)}</td>
-                      <td class="text-right mono">${Formatters.currency(inst.capital, symbol)}</td>
-                      <td class="text-right mono">${Formatters.currency(inst.interest, symbol)}</td>
-                      <td class="text-right mono" style="color: #34D399;">${Formatters.currency(inst.paidAmount, symbol)}</td>
-                      <td class="text-right mono" style="color: ${inst.pendingAmount > 0 ? '#F87171' : 'var(--text-subtle)'};">${Formatters.currency(inst.pendingAmount, symbol)}</td>
-                      <td class="text-center">${Formatters.statusBadge(inst.status)}</td>
-                      <td class="text-right mono font-bold">${Formatters.currency(inst.balanceAfter, symbol)}</td>
-                      <td class="text-center">
+                      <td data-label="Cuota" class="text-center mono font-bold">${inst.number} / ${loan.installmentsCount}</td>
+                      <td data-label="Vencimiento">${Formatters.date(inst.date)}</td>
+                      <td data-label="Monto cuota" class="text-right mono font-bold">${Formatters.currency(inst.amount, symbol)}</td>
+                      <td data-label="Capital" class="text-right mono">${Formatters.currency(inst.capital, symbol)}</td>
+                      <td data-label="Interés" class="text-right mono">${Formatters.currency(inst.interest, symbol)}</td>
+                      <td data-label="Pagado" class="text-right mono" style="color: #34D399;">${Formatters.currency(inst.paidAmount, symbol)}</td>
+                      <td data-label="Pendiente" class="text-right mono" style="color: ${inst.pendingAmount > 0 ? '#F87171' : 'var(--text-subtle)'};">${Formatters.currency(inst.pendingAmount, symbol)}</td>
+                      <td data-label="Estado" class="text-center">${Formatters.statusBadge(inst.status)}</td>
+                      <td data-label="Saldo restante" class="text-right mono font-bold">${Formatters.currency(inst.balanceAfter, symbol)}</td>
+                      <td data-label="Acción" class="text-center">
                         ${inst.status !== 'PAGADA' ? `
                           <button class="btn btn-emerald btn-sm" onclick="window.appRouter.closeModal(); window.appRouter.openPaymentModal('${loan.id}', ${inst.number})">
                             Cobrar
